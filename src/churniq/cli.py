@@ -9,7 +9,7 @@ from .data import load_dataset_with_report, DataValidationError
 from .eda import run_eda
 from .sql_analytics import run_sql_analytics
 from .modeling import train_and_evaluate
-from .business import campaign_scenarios
+from .business import write_scenario_artifacts
 
 
 def _write_report(report: dict, path: Path) -> None:
@@ -64,10 +64,14 @@ def run_all(data_path, out_dir) -> int:
     run_eda(df, out)
     run_sql_analytics(df, out)
     result = train_and_evaluate(df, out)
-    scores = pd.read_csv(out / "customer_risk_scores.csv")
-    campaign_scenarios(scores["churn_probability"]).to_csv(
-        out / "campaign_scenarios.csv", index=False
-    )
+    # Campaign scenarios use out-of-sample scores only (not train in-sample).
+    score_path = out / "out_of_sample_risk_scores.csv"
+    if not score_path.exists():
+        score_path = out / "customer_risk_scores.csv"
+    scores = pd.read_csv(score_path)
+    if "score_method" in scores.columns:
+        scores = scores.loc[scores["score_method"] == "out_of_sample"]
+    write_scenario_artifacts(scores["churn_probability"], out)
     print(json.dumps(result, indent=2))
     print(f"Artifacts saved to: {out.resolve()}")
     return 0
