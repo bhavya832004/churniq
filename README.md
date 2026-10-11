@@ -20,6 +20,23 @@ pytest
 
 If the download URL changes, obtain the CSV from the IBM Telco Customer Churn repository and save it to `data/raw/Telco-Customer-Churn.csv`.
 
+See [docs/developer_setup.md](docs/developer_setup.md) for Linux/macOS setup and local verification commands.
+
+## Phase 0 verification (local)
+
+Recorded on Windows with Python 3.12.7 after a clean editable install:
+
+| Command | Outcome |
+|---|---|
+| `python -m pip install -e ".[dev]"` | Succeeded |
+| `pytest` | Passed (unit + CLI smoke tests) |
+| `python scripts/download_dataset.py` | Succeeded (`data/raw/Telco-Customer-Churn.csv`, ~970 KB) |
+| `python -m churniq.cli audit ...` | Wrote valid `artifacts/data_quality.json` (7043 rows) |
+| `python -m churniq.cli all ...` | Wrote metrics, plots, scores, SQLite, and `model.joblib` |
+| `streamlit run app/streamlit_app.py` | Loaded with artifacts; missing-artifact state shows pipeline instructions |
+
+Do not treat the metrics from any single local run as a published benchmark until the modeling protocol work in later phases is complete.
+
 ## Features
 - Data quality checks and feature/target separation
 - SQL analytics using SQLite
@@ -35,9 +52,10 @@ If the download URL changes, obtain the CSV from the IBM Telco Customer Churn re
 
 ```text
 churniq/
+├── .github/workflows/tests.yml
 ├── app/streamlit_app.py
 ├── data/raw/.gitkeep
-├── docs/{methodology.md,dataset_card.md}
+├── docs/{methodology.md,dataset_card.md,developer_setup.md}
 ├── scripts/download_dataset.py
 ├── src/churniq/{cli.py,data.py,eda.py,sql_analytics.py,modeling.py,business.py}
 ├── tests/
