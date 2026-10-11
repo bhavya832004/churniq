@@ -37,8 +37,17 @@ Recorded on Windows with Python 3.12.7 after a clean editable install:
 
 Do not treat the metrics from any single local run as a published benchmark until the modeling protocol work in later phases is complete.
 
+## Data quality contract
+
+`python -m churniq.cli audit` writes a JSON report with `errors`, `warnings`, `metrics`, `source_path`, and `preprocessing_notes`.
+
+- Fatal issues (missing `Churn`, invalid labels, empty/malformed CSV) fail the command and do **not** silently drop rows.
+- `TotalCharges` blanks are coerced to missing; affected rows are retained and counted in the report.
+- Duplicate IDs/rows and one-class targets are warnings; rows are retained.
+- On the local Telco file: 7043 rows, 11 `TotalCharges` coercion missings, churn rate 0.26537.
+
 ## Features
-- Data quality checks and feature/target separation
+- Structured data-quality validation (`errors` / `warnings` / `metrics`) and feature/target separation
 - SQL analytics using SQLite
 - EDA plots and segment summaries
 - Logistic regression and random forest baselines
@@ -57,7 +66,7 @@ churniq/
 ├── data/raw/.gitkeep
 ├── docs/{methodology.md,dataset_card.md,developer_setup.md}
 ├── scripts/download_dataset.py
-├── src/churniq/{cli.py,data.py,eda.py,sql_analytics.py,modeling.py,business.py}
+├── src/churniq/{cli.py,data.py,validation.py,eda.py,sql_analytics.py,modeling.py,business.py}
 ├── tests/
 ├── artifacts/.gitkeep
 ├── pyproject.toml
@@ -66,7 +75,7 @@ churniq/
 
 ## Modeling protocol
 1. Target is `Churn = Yes`; `customerID` is excluded from predictors.
-2. `TotalCharges` is coerced to numeric; blanks become missing values.
+2. `TotalCharges` is coerced to numeric; blanks become missing values and are documented (rows retained).
 3. Stratified train/validation/test split.
 4. Preprocessing is fitted within each training pipeline.
 5. Select the operating threshold using validation data and F2.

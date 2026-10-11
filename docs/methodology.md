@@ -1,5 +1,6 @@
 # Methodology
 
+- Data contract: required `Churn` in {Yes, No}; invalid labels and empty/malformed inputs are fatal errors. Rows are not silently dropped. `TotalCharges` numeric coercion is recorded in the quality report.
 - Target: `Churn = Yes`; `customerID` is excluded from predictors.
 - The dataset is a static snapshot, so this starter is classification practice rather than time-aware churn forecasting.
 - Stratified train/validation/test split.

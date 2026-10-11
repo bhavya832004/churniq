@@ -48,6 +48,14 @@ streamlit run app/streamlit_app.py
 
 Generated CSVs, model files, plots, and SQLite databases under `artifacts/` are gitignored by default.
 
+## Data quality audit
+
+```powershell
+python -m churniq.cli audit --data data/raw/Telco-Customer-Churn.csv --out artifacts/data_quality.json
+```
+
+The JSON report includes `ok`, `errors`, `warnings`, `metrics`, `source_path`, and `preprocessing_notes`. Fatal validation failures exit with code 1 after writing the report.
+
 ## Notes
 
 - Raw data and trained models are not committed.
